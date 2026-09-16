@@ -1,4 +1,6 @@
 .streamlit/secrets.toml
+*-service-account.json
+neon-webbing-314108-164f194cf012.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
