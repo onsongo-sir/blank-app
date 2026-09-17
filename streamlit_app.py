@@ -28,6 +28,12 @@ st.markdown(
     .stAppHeader, .css-18ni0ed {
         background-color: #34a379 !important;
     }
+    div[data-testid="stToolbar"] {
+        visibility: hidden;
+        height: 0;
+        margin: 0;
+        padding: 0;
+    }
     .stButton>button {
         border-radius: 4px;
         font-weight: bold;
