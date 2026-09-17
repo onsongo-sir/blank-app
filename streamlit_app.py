@@ -33,8 +33,12 @@ st.markdown(
         font-weight: bold;
     }
 
-    /* Keep the top header available so the sidebar can reopen, but hide the GitHub link */
-    #MainMenu, .stAppHeader a[href*="github.com"] {
+    /* Keep the header visible so the sidebar can reopen, but hide the GitHub/status widget */
+    #MainMenu,
+    [data-testid="stStatusWidget"],
+    a[href*="github.com"],
+    a[aria-label*="GitHub"],
+    button[title*="GitHub"] {
         display: none !important;
     }
     </style>
