@@ -418,9 +418,26 @@ def create_pdf_document(preview_df, form_type):
 def send_dispatch_email(pdf_bytes, filename, form_type, preview_df, master_df):
     smtp_user = get_secret("smtp_user")
     smtp_pass = get_secret("smtp_password")
+    smtp_from = get_secret("smtp_from")
+    smtp_recipients_raw = get_secret("smtp_recipients")
+
+    if isinstance(smtp_recipients_raw, str):
+        recipients = [part.strip() for part in re.split(r"[,;]", smtp_recipients_raw) if part.strip()]
+    elif isinstance(smtp_recipients_raw, (list, tuple, set)):
+        recipients = [str(item).strip() for item in smtp_recipients_raw if str(item).strip()]
+    else:
+        recipients = []
 
     if not smtp_user or not smtp_pass:
         st.error("SMTP credentials (`smtp_user` & `smtp_password`) missing from secrets.")
+        return
+
+    if not smtp_from:
+        st.error("SMTP sender address (`smtp_from`) missing from secrets.")
+        return
+
+    if not recipients:
+        st.error("SMTP recipients missing from secrets (`smtp_recipients`).")
         return
 
     min_s = int(preview_df["Min"].min())
@@ -438,11 +455,10 @@ def send_dispatch_email(pdf_bytes, filename, form_type, preview_df, master_df):
         matched = master_df[master_df[fo_col].str.strip().isin(fo_names)]
         fo_emails = list(matched[email_col].dropna().unique())
 
-    recipients = ["mercy@vvf-kenya.org", "truphosa@vvf-kenya.org", "dickson@vvf-kenya.org", "onsongo@vvf-kenya.org"]
     fo_list_str = ", ".join(fo_names)
 
     msg = MIMEMultipart()
-    msg["From"] = "meal@vvf-kenya.org"
+    msg["From"] = smtp_from
     msg["To"] = ", ".join(recipients)
     if fo_emails:
         msg["Cc"] = ", ".join(fo_emails)
@@ -466,7 +482,7 @@ MEAL Automated Systems Portal
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(smtp_user, smtp_pass)
         all_to = recipients + fo_emails
-        server.sendmail("meal@vvf-kenya.org", all_to, msg.as_string())
+        server.sendmail(smtp_from, all_to, msg.as_string())
 
 # -------------------------------------------------------------------------
 # APPLICATION USER INTERFACE & STATE
