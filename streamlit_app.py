@@ -32,15 +32,6 @@ st.markdown(
         border-radius: 4px;
         font-weight: bold;
     }
-
-    /* Keep the header visible so the sidebar can reopen, but hide the GitHub/status widget */
-    #MainMenu,
-    [data-testid="stStatusWidget"],
-    a[href*="github.com"],
-    a[aria-label*="GitHub"],
-    button[title*="GitHub"] {
-        display: none !important;
-    }
     </style>
 """,
     unsafe_allow_html=True,
