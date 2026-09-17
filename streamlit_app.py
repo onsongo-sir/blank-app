@@ -32,6 +32,16 @@ st.markdown(
         border-radius: 4px;
         font-weight: bold;
     }
+
+    /* Hides the GitHub icon/link in the top-right toolbar */
+    #MainMenu, .stAppHeader a[href*="github.com"] {
+        display: none !important;
+    }
+
+    /* Optional: hide the full top header toolbar */
+    header[data-testid="stHeader"] {
+        display: none !important;
+    }
     </style>
 """,
     unsafe_allow_html=True,
