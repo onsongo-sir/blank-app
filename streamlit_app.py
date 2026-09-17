@@ -33,13 +33,8 @@ st.markdown(
         font-weight: bold;
     }
 
-    /* Hides the GitHub icon/link in the top-right toolbar */
+    /* Keep the top header available so the sidebar can reopen, but hide the GitHub link */
     #MainMenu, .stAppHeader a[href*="github.com"] {
-        display: none !important;
-    }
-
-    /* Optional: hide the full top header toolbar */
-    header[data-testid="stHeader"] {
         display: none !important;
     }
     </style>
