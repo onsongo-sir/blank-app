@@ -497,7 +497,7 @@ if "sidebar_visible" not in st.session_state:
     st.session_state.sidebar_visible = True
 
 if st.session_state.sidebar_visible:
-    sidebar_col, content_col = st.columns([0.28, 0.72])
+    sidebar_col, content_col = st.columns([3, 7])
     with sidebar_col:
         st.header("Control Panel")
 
