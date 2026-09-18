@@ -493,6 +493,8 @@ MEAL Automated Systems Portal
 # -------------------------------------------------------------------------
 # APPLICATION USER INTERFACE & STATE
 # -------------------------------------------------------------------------
+st.title("VVF Forms Automation")
+
 if "sidebar_visible" not in st.session_state:
     st.session_state.sidebar_visible = True
 
@@ -521,11 +523,7 @@ if st.session_state.sidebar_visible:
         if st.button("Hide Sidebar", use_container_width=True):
             st.session_state.sidebar_visible = False
             st.rerun()
-
-    with content_col:
-        st.title("VVF Forms Automation")
 else:
-    st.title("VVF Forms Automation")
     center_col, _, _ = st.columns([1.5, 2, 1.5])
     with center_col:
         if st.button("Return Sidebar", use_container_width=True):
