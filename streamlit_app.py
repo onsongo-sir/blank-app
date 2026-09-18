@@ -493,8 +493,6 @@ MEAL Automated Systems Portal
 # -------------------------------------------------------------------------
 # APPLICATION USER INTERFACE & STATE
 # -------------------------------------------------------------------------
-st.title("VVF Forms Automation")
-
 if "sidebar_visible" not in st.session_state:
     st.session_state.sidebar_visible = True
 
@@ -523,6 +521,9 @@ if st.session_state.sidebar_visible:
         if st.button("Hide Sidebar", use_container_width=True):
             st.session_state.sidebar_visible = False
             st.rerun()
+
+    with content_col:
+        st.title("VVF Forms Automation")
 else:
     center_col, _, _ = st.columns([1.5, 2, 1.5])
     with center_col:
@@ -530,6 +531,7 @@ else:
             st.session_state.sidebar_visible = True
             st.rerun()
 
+    st.title("VVF Forms Automation")
     form_type = st.radio(
         "Select Document Type:",
         ["Attendance", "Individual Consent", "Group Consent"],
@@ -549,50 +551,95 @@ if "master_df" not in st.session_state:
 
 master_df = st.session_state.get("master_df", pd.DataFrame())
 
-st.subheader("Step 1: Master Form Responses (Latest Entries First)")
-selected_rows = pd.DataFrame()
+if st.session_state.sidebar_visible:
+    with content_col:
+        st.subheader("Step 1: Master Form Responses (Latest Entries First)")
+        selected_rows = pd.DataFrame()
 
-if not master_df.empty:
-    dt_event = st.dataframe(
-        master_df,
-        hide_index=True,
-        use_container_width=True,
-        on_select="rerun",
-        selection_mode="multi-row",
-        key="master_table",
-    )
-    sel_idx = dt_event.selection.rows
-    if sel_idx:
-        selected_rows = master_df.iloc[sel_idx]
-    st.caption(f"📌 {len(selected_rows)} row(s) selected from table.")
-else:
-    st.warning("No data found in source sheet 'Form Responses 1'.")
+        if not master_df.empty:
+            dt_event = st.dataframe(
+                master_df,
+                hide_index=True,
+                use_container_width=True,
+                on_select="rerun",
+                selection_mode="multi-row",
+                key="master_table",
+            )
+            sel_idx = dt_event.selection.rows
+            if sel_idx:
+                selected_rows = master_df.iloc[sel_idx]
+            st.caption(f"📌 {len(selected_rows)} row(s) selected from table.")
+        else:
+            st.warning("No data found in source sheet 'Form Responses 1'.")
 
-target_sheet = CONSENT_SHEET if form_type in ["Individual Consent", "Group Consent"] else ATT_SHEET
+        target_sheet = CONSENT_SHEET if form_type in ["Individual Consent", "Group Consent"] else ATT_SHEET
 
-# Stage Calculation
-if btn_stage:
-    if selected_rows.empty:
-        st.error("Please select at least one row from the master requests table.")
-    else:
-        try:
-            preview_df = build_serial_preview(selected_rows, form_type, target_sheet)
-            st.session_state.preview_df = preview_df
-            if not preview_df.empty:
-                st.success("Serials staged and calculated successfully.")
+        if btn_stage:
+            if selected_rows.empty:
+                st.error("Please select at least one row from the master requests table.")
             else:
-                st.warning("Selected rows contain 0 or empty form counts.")
-        except Exception as e:
-            st.error(f"Calculation Fault: {e}")
+                try:
+                    preview_df = build_serial_preview(selected_rows, form_type, target_sheet)
+                    st.session_state.preview_df = preview_df
+                    if not preview_df.empty:
+                        st.success("Serials staged and calculated successfully.")
+                    else:
+                        st.warning("Selected rows contain 0 or empty form counts.")
+                except Exception as e:
+                    st.error(f"Calculation Fault: {e}")
 
-preview_df = st.session_state.get("preview_df", pd.DataFrame())
+        preview_df = st.session_state.get("preview_df", pd.DataFrame())
 
-st.divider()
-st.subheader("Step 2: Calculated Serial Previews")
-if not preview_df.empty:
-    st.dataframe(preview_df, hide_index=True, use_container_width=True)
+        st.divider()
+        st.subheader("Step 2: Calculated Serial Previews")
+        if not preview_df.empty:
+            st.dataframe(preview_df, hide_index=True, use_container_width=True)
+        else:
+            st.info("No calculations staged yet. Select entries and click **Stage & Calculate Serials**.")
 else:
-    st.info("No calculations staged yet. Select entries and click **Stage & Calculate Serials**.")
+    st.subheader("Step 1: Master Form Responses (Latest Entries First)")
+    selected_rows = pd.DataFrame()
+
+    if not master_df.empty:
+        dt_event = st.dataframe(
+            master_df,
+            hide_index=True,
+            use_container_width=True,
+            on_select="rerun",
+            selection_mode="multi-row",
+            key="master_table",
+        )
+        sel_idx = dt_event.selection.rows
+        if sel_idx:
+            selected_rows = master_df.iloc[sel_idx]
+        st.caption(f"📌 {len(selected_rows)} row(s) selected from table.")
+    else:
+        st.warning("No data found in source sheet 'Form Responses 1'.")
+
+    target_sheet = CONSENT_SHEET if form_type in ["Individual Consent", "Group Consent"] else ATT_SHEET
+
+    if btn_stage:
+        if selected_rows.empty:
+            st.error("Please select at least one row from the master requests table.")
+        else:
+            try:
+                preview_df = build_serial_preview(selected_rows, form_type, target_sheet)
+                st.session_state.preview_df = preview_df
+                if not preview_df.empty:
+                    st.success("Serials staged and calculated successfully.")
+                else:
+                    st.warning("Selected rows contain 0 or empty form counts.")
+            except Exception as e:
+                st.error(f"Calculation Fault: {e}")
+
+    preview_df = st.session_state.get("preview_df", pd.DataFrame())
+
+    st.divider()
+    st.subheader("Step 2: Calculated Serial Previews")
+    if not preview_df.empty:
+        st.dataframe(preview_df, hide_index=True, use_container_width=True)
+    else:
+        st.info("No calculations staged yet. Select entries and click **Stage & Calculate Serials**.")
 
 # Append Logic
 if btn_append:
