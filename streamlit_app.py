@@ -10,7 +10,6 @@ from pathlib import Path
 import gspread
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 from weasyprint import HTML
 
 # -------------------------------------------------------------------------
@@ -494,55 +493,55 @@ MEAL Automated Systems Portal
 # -------------------------------------------------------------------------
 # APPLICATION USER INTERFACE & STATE
 # -------------------------------------------------------------------------
-st.title("VVF Forms Automation")
+if "sidebar_visible" not in st.session_state:
+    st.session_state.sidebar_visible = True
 
-if "sidebar_open_requested" not in st.session_state:
-    st.session_state.sidebar_open_requested = False
+if st.session_state.sidebar_visible:
+    sidebar_col, content_col = st.columns([0.28, 0.72])
+    with sidebar_col:
+        st.header("Control Panel")
 
-if st.session_state.get("sidebar_open_requested"):
-    components.html(
-        """
-        <script>
-            const toggleSidebar = () => {
-                const button = document.querySelector('[data-testid="stSidebarCollapseButton"]');
-                if (!button) return;
-                const isExpanded = button.getAttribute('aria-expanded') === 'true';
-                if (!isExpanded) {
-                    button.click();
-                }
-            };
-            setTimeout(toggleSidebar, 150);
-        </script>
-        """,
-        height=0,
-        width=0,
-    )
-    st.session_state.sidebar_open_requested = False
+        st.subheader("1. Form Type Selector")
+        form_type = st.radio(
+            "Select Document Type:",
+            ["Attendance", "Individual Consent", "Group Consent"],
+            index=1,
+        )
 
-center_col, _, _ = st.columns([1.5, 2, 1.5])
-with center_col:
-    if st.button("Return Sidebar", use_container_width=True):
-        st.session_state.sidebar_open_requested = True
+        st.divider()
+        st.subheader("2. Data Actions")
+        btn_stage = st.button("Stage & Calculate Serials", type="primary", use_container_width=True)
+        btn_append = st.button("Append Serials to Sheet", use_container_width=True)
 
-with st.sidebar:
-    st.header("Control Panel")
+        st.divider()
+        st.subheader("3. Native Printing Pipeline")
+        btn_gen_pdf = st.button("1. Generate PDF Document", type="primary", use_container_width=True)
+        btn_email = st.button("2. Send Email", use_container_width=True)
 
-    st.subheader("1. Form Type Selector")
+        if st.button("Hide Sidebar", use_container_width=True):
+            st.session_state.sidebar_visible = False
+            st.rerun()
+
+    with content_col:
+        st.title("VVF Forms Automation")
+else:
+    st.title("VVF Forms Automation")
+    center_col, _, _ = st.columns([1.5, 2, 1.5])
+    with center_col:
+        if st.button("Return Sidebar", use_container_width=True):
+            st.session_state.sidebar_visible = True
+            st.rerun()
+
     form_type = st.radio(
         "Select Document Type:",
         ["Attendance", "Individual Consent", "Group Consent"],
         index=1,
+        key="form_type_hidden_sidebar",
     )
-
-    st.divider()
-    st.subheader("2. Data Actions")
-    btn_stage = st.button("Stage & Calculate Serials", type="primary", use_container_width=True)
-    btn_append = st.button("Append Serials to Sheet", use_container_width=True)
-
-    st.divider()
-    st.subheader("3. Native Printing Pipeline")
-    btn_gen_pdf = st.button("1. Generate PDF Document", type="primary", use_container_width=True)
-    btn_email = st.button("2. Send Email", use_container_width=True)
+    btn_stage = False
+    btn_append = False
+    btn_gen_pdf = False
+    btn_email = False
 
 # Fetch Source Data
 if "master_df" not in st.session_state:
