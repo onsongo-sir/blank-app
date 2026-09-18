@@ -10,6 +10,7 @@ from pathlib import Path
 import gspread
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 from weasyprint import HTML
 
 # -------------------------------------------------------------------------
@@ -494,6 +495,34 @@ MEAL Automated Systems Portal
 # APPLICATION USER INTERFACE & STATE
 # -------------------------------------------------------------------------
 st.title("VVF Forms Automation")
+
+if "sidebar_open_requested" not in st.session_state:
+    st.session_state.sidebar_open_requested = False
+
+if st.session_state.get("sidebar_open_requested"):
+    components.html(
+        """
+        <script>
+            const toggleSidebar = () => {
+                const button = document.querySelector('[data-testid="stSidebarCollapseButton"]');
+                if (!button) return;
+                const isExpanded = button.getAttribute('aria-expanded') === 'true';
+                if (!isExpanded) {
+                    button.click();
+                }
+            };
+            setTimeout(toggleSidebar, 150);
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
+    st.session_state.sidebar_open_requested = False
+
+center_col, _, _ = st.columns([1.5, 2, 1.5])
+with center_col:
+    if st.button("Return Sidebar", use_container_width=True):
+        st.session_state.sidebar_open_requested = True
 
 with st.sidebar:
     st.header("Control Panel")
